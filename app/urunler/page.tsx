@@ -3,6 +3,9 @@ import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 import Link from 'next/link';
 
+// BU SATIRI EKLEMEN YETERLİ (Önbelleği kapatır, veriyi taze çeker)
+export const revalidate = 0;
+
 async function getProducts() {
     const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
     return data || [];

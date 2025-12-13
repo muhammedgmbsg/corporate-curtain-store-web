@@ -1,4 +1,6 @@
 "use client";
+// BU SATIRI EKLE (Next.js 15 Client Component'lerde bazen gerekmez ama garanti olsun)
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect, use } from 'react';
 import { supabase } from '@/lib/supabase';
