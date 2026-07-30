@@ -1,4 +1,4 @@
-"use client"; // Bu satır etkileşim (buton, state) olduğu için şart
+"use client";
 
 import Navbar from '@/components/Navbar';
 import { MapPin, Phone, Mail, Send, Smartphone, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
@@ -8,7 +8,7 @@ export default function IletisimPage() {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-    const inputClasses = "w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-4 outline-none transition";
+    const inputClasses = "w-full bg-stone-50 border border-stone-200 text-charcoal-900 text-sm rounded-none focus:ring-1 focus:ring-gold-500 focus:border-gold-500 block p-4 outline-none transition-all";
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -18,7 +18,6 @@ export default function IletisimPage() {
         const formData = new FormData(e.currentTarget);
         const data = Object.fromEntries(formData.entries());
 
-        // FormSubmit AJAX API kullanımı
         try {
             const response = await fetch("https://formsubmit.co/ajax/erolperde.elazig@gmail.com", {
                 method: "POST",
@@ -34,7 +33,7 @@ export default function IletisimPage() {
 
             if (response.ok) {
                 setStatus('success');
-                (e.target as HTMLFormElement).reset(); // Formu temizle
+                (e.target as HTMLFormElement).reset();
             } else {
                 setStatus('error');
             }
@@ -47,114 +46,113 @@ export default function IletisimPage() {
     }
 
     return (
-        <main className="min-h-screen bg-white">
+        <main className="min-h-screen bg-stone-50">
             <Navbar />
 
             {/* Header */}
-            <div className="bg-slate-900 text-white py-20 text-center px-4">
-                <h1 className="text-4xl font-bold mb-4">Bize Ulaşın</h1>
-                <p className="text-gray-300 max-w-xl mx-auto">Erol Perde olarak Elazığ'da hizmetinizdeyiz. Keşif talepleriniz ve siparişleriniz için bize yazın.</p>
+            <div className="bg-charcoal-900 text-white pt-40 pb-28 px-6 text-center">
+                <span className="text-gold-500 text-xs font-bold uppercase tracking-[0.3em] mb-4 block">İletişim</span>
+                <h1 className="text-4xl md:text-5xl font-serif mb-6">Bize Ulaşın</h1>
+                <div className="w-16 h-[1px] bg-gold-500 mx-auto mb-8"></div>
+                <p className="text-stone-300 max-w-xl mx-auto font-light leading-relaxed">Projeleriniz, ölçü ve keşif talepleriniz için uzman ekibimizle iletişime geçin.</p>
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 -mt-10 mb-20">
-                <div className="grid md:grid-cols-3 gap-8">
+            <div className="max-w-7xl mx-auto px-6 -mt-16 mb-32">
+                <div className="grid md:grid-cols-3 gap-12">
 
                     {/* SOL Taraf: İletişim Bilgileri */}
-                    <div className="bg-slate-800 text-white p-10 rounded-2xl shadow-xl h-fit">
-                        <h3 className="text-2xl font-bold mb-8">İletişim Bilgileri</h3>
+                    <div className="bg-white p-12 shadow-2xl border border-stone-100 h-fit">
+                        <h3 className="text-2xl font-serif text-charcoal-900 mb-8">İletişim Bilgileri</h3>
 
-                        <div className="space-y-8">
-                            <div className="flex items-start gap-4">
-                                <div className="bg-white/10 p-3 rounded-lg text-blue-400">
-                                    <MapPin size={24} />
+                        <div className="space-y-10">
+                            <div className="flex items-start gap-6 group">
+                                <div className="p-3 bg-stone-50 rounded-full text-gold-600 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-300">
+                                    <MapPin size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-lg mb-1">Adres</h4>
-                                    <p className="text-gray-300 leading-relaxed">
+                                    <h4 className="font-bold text-sm uppercase tracking-widest text-charcoal-900 mb-2">Adres</h4>
+                                    <p className="text-stone-500 font-light leading-relaxed">
                                         İzzetpaşa Mah. Şehit Teğmen <br /> Nadir Ozan Sok. No:24/A <br /> Elazığ
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="flex items-start gap-4">
-                                <div className="bg-white/10 p-3 rounded-lg text-blue-400">
-                                    <Phone size={24} />
+                            <div className="flex items-start gap-6 group">
+                                <div className="p-3 bg-stone-50 rounded-full text-gold-600 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-300">
+                                    <Phone size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-lg mb-1">Telefax</h4>
-                                    <a href="tel:04242331834" className="text-gray-300 hover:text-white transition">0424 233 18 34</a>
+                                    <h4 className="font-bold text-sm uppercase tracking-widest text-charcoal-900 mb-2">Telefax</h4>
+                                    <a href="tel:04242331834" className="text-stone-500 font-light hover:text-gold-600 transition-colors">0424 233 18 34</a>
                                 </div>
                             </div>
 
-                            <div className="flex items-start gap-4">
-                                <div className="bg-white/10 p-3 rounded-lg text-blue-400">
-                                    <Smartphone size={24} />
+                            <div className="flex items-start gap-6 group">
+                                <div className="p-3 bg-stone-50 rounded-full text-gold-600 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-300">
+                                    <Smartphone size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-lg mb-1">GSM</h4>
-                                    <a href="tel:05445208087" className="text-gray-300 hover:text-white transition">0544 520 80 87</a>
+                                    <h4 className="font-bold text-sm uppercase tracking-widest text-charcoal-900 mb-2">GSM</h4>
+                                    <a href="tel:05445208087" className="text-stone-500 font-light hover:text-gold-600 transition-colors">0544 520 80 87</a>
                                 </div>
                             </div>
 
-                            <div className="flex items-start gap-4">
-                                <div className="bg-white/10 p-3 rounded-lg text-blue-400">
-                                    <Mail size={24} />
+                            <div className="flex items-start gap-6 group">
+                                <div className="p-3 bg-stone-50 rounded-full text-gold-600 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-300">
+                                    <Mail size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-lg mb-1">E-Posta</h4>
-                                    <a href="mailto:erolperde.elazig@gmail.com" className="text-gray-300 hover:text-white transition break-all">
+                                    <h4 className="font-bold text-sm uppercase tracking-widest text-charcoal-900 mb-2">E-Posta</h4>
+                                    <a href="mailto:erolperde.elazig@gmail.com" className="text-stone-500 font-light hover:text-gold-600 transition-colors break-all">
                                         erolperde.elazig@gmail.com
                                     </a>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
                     {/* SAĞ Taraf: İletişim Formu */}
-                    <div className="md:col-span-2 bg-white p-8 md:p-10 rounded-2xl shadow-lg border border-gray-100">
-                        <h3 className="text-2xl font-bold text-slate-800 mb-6">Mesaj Gönderin</h3>
+                    <div className="md:col-span-2 bg-white p-12 shadow-xl border border-stone-100 mt-16 md:mt-0">
+                        <h3 className="text-3xl font-serif text-charcoal-900 mb-8">Mesaj Gönderin</h3>
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid md:grid-cols-2 gap-6">
+                        <form onSubmit={handleSubmit} className="space-y-8">
+                            <div className="grid md:grid-cols-2 gap-8">
                                 <div>
-                                    <label className="block mb-2 text-sm font-semibold text-gray-700">Adınız</label>
+                                    <label className="block mb-3 text-xs font-bold uppercase tracking-widest text-stone-500">Adınız</label>
                                     <input type="text" name="Ad" placeholder="Adınız" className={inputClasses} required />
                                 </div>
                                 <div>
-                                    <label className="block mb-2 text-sm font-semibold text-gray-700">Soyadınız</label>
+                                    <label className="block mb-3 text-xs font-bold uppercase tracking-widest text-stone-500">Soyadınız</label>
                                     <input type="text" name="Soyad" placeholder="Soyadınız" className={inputClasses} required />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block mb-2 text-sm font-semibold text-gray-700">E-Posta Adresiniz</label>
+                                <label className="block mb-3 text-xs font-bold uppercase tracking-widest text-stone-500">E-Posta Adresiniz</label>
                                 <input type="email" name="Email" placeholder="ornek@email.com" className={inputClasses} required />
                             </div>
 
                             <div>
-                                <label className="block mb-2 text-sm font-semibold text-gray-700">Mesajınız</label>
-                                <textarea name="Mesaj" placeholder="Ürünler veya keşif hakkında..." className={`${inputClasses} h-40 resize-none`} required></textarea>
+                                <label className="block mb-3 text-xs font-bold uppercase tracking-widest text-stone-500">Mesajınız</label>
+                                <textarea name="Mesaj" placeholder="Mimari çözümler, ürünler veya keşif hakkında..." className={`${inputClasses} h-40 resize-none`} required></textarea>
                             </div>
 
-                            {/* Başarı Mesajı */}
                             {status === 'success' && (
-                                <div className="bg-green-50 text-green-700 p-4 rounded-xl flex items-center gap-3 border border-green-200">
+                                <div className="bg-stone-50 text-gold-600 p-6 flex items-center gap-4 border border-stone-200">
                                     <CheckCircle size={24} />
                                     <div>
-                                        <p className="font-bold">Mesajınız başarıyla gönderildi!</p>
-                                        <p className="text-sm">En kısa sürede size dönüş yapacağız.</p>
+                                        <p className="font-bold tracking-wide">Mesajınız başarıyla iletildi.</p>
+                                        <p className="text-sm font-light text-stone-500 mt-1">Uzman ekibimiz en kısa sürede sizinle iletişime geçecektir.</p>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Hata Mesajı */}
                             {status === 'error' && (
-                                <div className="bg-red-50 text-red-700 p-4 rounded-xl flex items-center gap-3 border border-red-200">
+                                <div className="bg-red-50 text-red-700 p-6 flex items-center gap-4 border border-red-200">
                                     <AlertCircle size={24} />
                                     <div>
-                                        <p className="font-bold">Mesaj gönderilemedi!</p>
-                                        <p className="text-sm">Lütfen internet bağlantınızı kontrol edip tekrar deneyin.</p>
+                                        <p className="font-bold tracking-wide">Gönderim Başarısız</p>
+                                        <p className="text-sm font-light mt-1">Lütfen internet bağlantınızı kontrol edip tekrar deneyin.</p>
                                     </div>
                                 </div>
                             )}
@@ -162,15 +160,15 @@ export default function IletisimPage() {
                             <button
                                 disabled={loading}
                                 type="submit"
-                                className="bg-blue-600 text-white py-4 px-8 rounded-xl font-bold hover:bg-blue-700 transition flex items-center gap-2 shadow-lg shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="bg-charcoal-900 text-white py-5 px-10 text-sm font-bold uppercase tracking-widest hover:bg-gold-600 transition-colors flex items-center justify-center gap-3 w-full disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? (
                                     <>
-                                        <Loader2 className="animate-spin" size={20} /> Gönderiliyor...
+                                        <Loader2 className="animate-spin" size={18} /> GÖNDERİLİYOR...
                                     </>
                                 ) : (
                                     <>
-                                        Gönder <Send size={18} />
+                                        MESAJI GÖNDER <Send size={16} />
                                     </>
                                 )}
                             </button>
