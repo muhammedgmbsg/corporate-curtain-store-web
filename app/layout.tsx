@@ -1,22 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import Footer from "@/components/Footer"; // Footer'ı içeri aktardık
+import Footer from "@/components/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
 });
 
-// Site başlığı ve açıklamasını güncelledik
 export const metadata: Metadata = {
   title: "Erol Perde - Elazığ",
-  description: "Elazığ'ın öncü perde ve ev dekorasyon mağazası. 2007'den beri hizmetinizde.",
+  description: "Elazığ'ın öncü perde ve ev dekorasyon mağazası. Kalite ve zarafetin buluşma noktası.",
 };
 
 export default function RootLayout({
@@ -25,12 +24,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr"> {/* Dili Türkçe yaptık */}
+    <html lang="tr" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${playfair.variable} font-sans antialiased text-slate-800 bg-stone-50`}
       >
         {children}
-        <Footer /> {/* Footer'ı sayfanın en altına ekledik */}
+        <Footer />
       </body>
     </html>
   );

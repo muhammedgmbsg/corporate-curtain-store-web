@@ -1,116 +1,182 @@
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Star, ShieldCheck, Ruler, Layers, Blinds, Home as HomeIcon } from 'lucide-react';
+import { databases, databaseId, collectionId, Query } from '@/lib/appwrite';
 
-export default function Home() {
-  return (
-    <main className="min-h-screen bg-white font-sans">
-      <Navbar />
+export const revalidate = 0;
 
-      {/* Hero Bölümü */}
-      <section className="relative h-[650px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-slate-900/80 z-10" />
-          <div
-            className="w-full h-full bg-[url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069&auto=format&fit=crop')] 
-             bg-cover bg-center"
-          />
-        </div>
+async function getLatestProducts() {
+    try {
+        const response = await databases.listDocuments(
+            databaseId,
+            collectionId,
+            [Query.orderDesc('$createdAt'), Query.limit(3)]
+        );
+        return response.documents.map(doc => ({
+            id: doc.$id,
+            title: doc.title,
+            category: doc.category,
+            images: doc.images || []
+        }));
+    } catch (error) {
+        console.error("Error fetching latest products:", error);
+        return [];
+    }
+}
 
-        <div className="relative z-20 text-center px-4 max-w-5xl mx-auto mt-10">
-          <span className="inline-block py-1.5 px-4 rounded-full bg-blue-600/20 border border-blue-400/30 text-blue-100 text-sm font-semibold mb-6 backdrop-blur-md uppercase tracking-wider">
-            2007'den Beri Elazığ'da Hizmetinizde
-          </span>
-          <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight">
-            Evinizin Havasını <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-white">Erol Perde İle Değiştirin</span>
-          </h1>
-          <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-3xl mx-auto font-light leading-relaxed">
-            Ev dekorasyonu, tekstil ve mekanizmalı perde sistemlerinde uzman çözümler.
-            PVC, Dikey, Jaluzi ve Stor perde çeşitleriyle mekanlarınıza şıklık katıyoruz.
-          </p>
-          <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Link
-              href="/urunler"
-              className="bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-900/50 flex items-center justify-center gap-2 group"
-            >
-              Ürünleri İncele <ArrowRight size={20} className="group-hover:translate-x-1 transition" />
-            </Link>
-            <Link
-              href="/iletisim"
-              className="bg-transparent border border-white/30 text-white px-8 py-4 rounded-xl text-lg font-medium hover:bg-white/10 transition backdrop-blur-sm"
-            >
-              İletişime Geç
-            </Link>
-          </div>
-        </div>
-      </section>
+export default async function Home() {
+    const latestProducts = await getLatestProducts();
 
-      {/* Hizmetlerimiz Bölümü */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-800 mb-4">Hizmetlerimiz</h2>
-            <div className="h-1 w-20 bg-blue-600 mx-auto rounded-full"></div>
-            <p className="text-gray-500 mt-4 max-w-2xl mx-auto">
-              Ev dekorasyonundan ofis sistemlerine kadar geniş ürün yelpazemizle hizmetinizdeyiz.
-            </p>
-          </div>
+    return (
+        <main className="min-h-screen bg-stone-50 font-sans">
+            <Navbar />
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Hizmet 1 */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition duration-300 border border-gray-100 group">
-              <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                <HomeIcon size={28} />
-              </div>
-              <h3 className="text-xl font-bold mb-3 text-slate-800">Ev Dekorasyon & Tekstil</h3>
-              <p className="text-gray-500 leading-relaxed">Modern ev tekstili ürünleri ve dekoratif perde çözümleriyle yaşam alanlarınızı güzelleştiriyoruz.</p>
-            </div>
+            {/* Premium Hero Bölümü */}
+            <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 bg-charcoal-900/60 z-10" />
+                    <div
+                        className="w-full h-full bg-[url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069&auto=format&fit=crop')] 
+             bg-cover bg-center scale-105 animate-fade-in"
+                        style={{ animationDuration: '3s' }}
+                    />
+                </div>
 
-            {/* Hizmet 2 */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition duration-300 border border-gray-100 group">
-              <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                <Layers size={28} />
-              </div>
-              <h3 className="text-xl font-bold mb-3 text-slate-800">Mekanizmalı Sistemler</h3>
-              <p className="text-gray-500 leading-relaxed">Motorlu kumandalı stor ve zebra perdeler ile teknolojiyi konforla buluşturuyoruz.</p>
-            </div>
+                <div className="relative z-20 text-center px-6 max-w-5xl mx-auto mt-20 animate-fade-in-up">
+                    <span className="inline-block py-1.5 px-6 border border-gold-500/50 text-gold-500 text-xs font-semibold mb-8 uppercase tracking-[0.3em]">
+                        2007'den Beri Elazığ'da
+                    </span>
+                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif text-white mb-6 leading-tight drop-shadow-lg">
+                        Evinizin <span className="text-gold-500 italic">Ruhu</span>
+                    </h1>
+                    <p className="text-lg md:text-xl text-stone-300 mb-12 max-w-2xl mx-auto font-light leading-relaxed tracking-wide">
+                        Modern iç mimari ile lüks dokuları buluşturan perde ve dekorasyon çözümleriyle yaşam alanlarınıza yeniden hayat verin.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                        <Link
+                            href="/urunler"
+                            className="bg-gold-500 text-charcoal-900 px-10 py-4 text-sm font-bold uppercase tracking-widest hover:bg-gold-600 transition-colors flex items-center justify-center gap-3 w-full sm:w-auto"
+                        >
+                            Koleksiyonu Keşfet
+                        </Link>
+                        <Link
+                            href="/iletisim"
+                            className="bg-transparent border border-white/50 text-white px-10 py-4 text-sm font-bold uppercase tracking-widest hover:bg-white/10 transition-colors w-full sm:w-auto"
+                        >
+                            İletişime Geç
+                        </Link>
+                    </div>
+                </div>
+            </section>
 
-            {/* Hizmet 3 */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition duration-300 border border-gray-100 group">
-              <div className="w-14 h-14 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                <Blinds size={28} />
-              </div>
-              <h3 className="text-xl font-bold mb-3 text-slate-800">PVC & Jaluzi Sistemleri</h3>
-              <p className="text-gray-500 leading-relaxed">Ofis ve iş yerleri için dayanıklı PVC dikey perdeler, ahşap ve metal jaluzi seçenekleri.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+            {/* Son Eklenen Ürünler Vitrini */}
+            <section className="py-32 bg-white">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row justify-between items-end mb-16">
+                        <div>
+                            <span className="text-gold-600 font-bold tracking-[0.2em] uppercase text-xs mb-3 block">Vitrin</span>
+                            <h2 className="text-4xl md:text-5xl font-serif text-charcoal-900">En Yeni Tasarımlar</h2>
+                        </div>
+                        <Link href="/urunler" className="text-charcoal-800 font-medium hover:text-gold-600 transition-colors flex items-center gap-2 mt-6 md:mt-0 pb-2 border-b-2 border-transparent hover:border-gold-600">
+                            Tüm Koleksiyonu Gör <ArrowRight size={18} />
+                        </Link>
+                    </div>
 
-      {/* Hakkımızda Teaser */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-          <div className="relative h-[400px] rounded-2xl overflow-hidden shadow-2xl">
-            <div className="absolute inset-0 bg-slate-900/20"></div>
-            {/* Buraya dükkanın veya temsili bir görsel gelebilir */}
-            <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=2000')] bg-cover bg-center"></div>
-          </div>
-          <div>
-            <h2 className="text-3xl font-bold text-slate-800 mb-6">Elazığ'da Kalitenin Adresi: <span className="text-blue-600">Erol Perde</span></h2>
-            <p className="text-gray-600 text-lg leading-relaxed mb-6">
-              2007 yılında başladığımız bu yolculukta, İzzetpaşa Mahallesi'ndeki mağazamızda müşterilerimize en kaliteli perde ve tekstil ürünlerini sunuyoruz.
-            </p>
-            <ul className="space-y-3 mb-8">
-              <li className="flex items-center gap-3 text-gray-700 font-medium"><ShieldCheck className="text-green-500" /> Kaliteli Malzeme Garantisi</li>
-              <li className="flex items-center gap-3 text-gray-700 font-medium"><Ruler className="text-blue-500" /> Ücretsiz Ölçü ve Keşif</li>
-              <li className="flex items-center gap-3 text-gray-700 font-medium"><Star className="text-yellow-500" /> Müşteri Memnuniyeti Odaklı Hizmet</li>
-            </ul>
-            <Link href="/hakkimizda" className="text-blue-600 font-bold hover:underline inline-flex items-center">
-              Hikayemizi Okuyun <ArrowRight size={18} className="ml-2" />
-            </Link>
-          </div>
-        </div>
-      </section>
-    </main>
-  );
+                    <div className="grid md:grid-cols-3 gap-10">
+                        {latestProducts.map((product) => (
+                            <Link href={`/urunler/${product.id}`} key={product.id} className="group cursor-pointer">
+                                <div className="relative aspect-[4/5] bg-stone-100 overflow-hidden mb-6">
+                                    <Image
+                                        src={product.images && product.images[0] ? product.images[0] : '/placeholder.png'}
+                                        alt={product.title}
+                                        fill
+                                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                                    />
+                                    <div className="absolute inset-0 bg-charcoal-900/0 group-hover:bg-charcoal-900/20 transition-colors duration-500" />
+                                </div>
+                                <span className="text-gold-600 text-xs font-bold uppercase tracking-widest">{product.category}</span>
+                                <h3 className="text-xl font-serif text-charcoal-900 mt-2 group-hover:text-gold-600 transition-colors">{product.title}</h3>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Hizmetlerimiz Bölümü */}
+            <section className="py-32 bg-stone-50 border-t border-stone-200">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="text-center mb-20">
+                        <span className="text-gold-600 font-bold tracking-[0.2em] uppercase text-xs mb-3 block">Uzmanlık Alanlarımız</span>
+                        <h2 className="text-4xl md:text-5xl font-serif text-charcoal-900 mb-6">Mekana Özel Çözümler</h2>
+                        <div className="h-[1px] w-24 bg-gold-500 mx-auto"></div>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-12">
+                        {/* Hizmet 1 */}
+                        <div className="bg-white p-12 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group border border-stone-100">
+                            <div className="w-16 h-16 bg-stone-50 text-gold-600 rounded-full flex items-center justify-center mb-8 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
+                                <HomeIcon size={28} strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-2xl font-serif mb-4 text-charcoal-900">Ev Tekstili</h3>
+                            <p className="text-stone-500 leading-relaxed font-light">Modern ev tekstili ürünleri ve dekoratif tül/fon perde çözümleriyle yaşam alanlarınıza lüks bir dokunuş katıyoruz.</p>
+                        </div>
+
+                        {/* Hizmet 2 */}
+                        <div className="bg-white p-12 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group border border-stone-100">
+                            <div className="w-16 h-16 bg-stone-50 text-gold-600 rounded-full flex items-center justify-center mb-8 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
+                                <Layers size={28} strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-2xl font-serif mb-4 text-charcoal-900">Mekanizmalı Sistemler</h3>
+                            <p className="text-stone-500 leading-relaxed font-light">Motorlu kumandalı stor ve zebra perdeler ile teknolojiyi konforla buluşturarak modern çözümler üretiyoruz.</p>
+                        </div>
+
+                        {/* Hizmet 3 */}
+                        <div className="bg-white p-12 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group border border-stone-100">
+                            <div className="w-16 h-16 bg-stone-50 text-gold-600 rounded-full flex items-center justify-center mb-8 group-hover:bg-gold-500 group-hover:text-white transition-colors duration-500">
+                                <Blinds size={28} strokeWidth={1.5} />
+                            </div>
+                            <h3 className="text-2xl font-serif mb-4 text-charcoal-900">Mimari Sistemler</h3>
+                            <p className="text-stone-500 leading-relaxed font-light">Ofis, kış bahçesi ve iş yerleri için dayanıklı PVC, Plicell, ahşap ve metal jaluzi seçenekleri sunuyoruz.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Hakkımızda Teaser */}
+            <section className="py-32 bg-white">
+                <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center">
+                    <div className="relative h-[600px] overflow-hidden group">
+                        <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=2000')] bg-cover bg-center group-hover:scale-105 transition-transform duration-1000"></div>
+                        <div className="absolute inset-0 bg-charcoal-900/10 mix-blend-multiply"></div>
+                        <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-stone-100 -z-10"></div>
+                    </div>
+                    <div className="pl-4 md:pl-10 border-l border-gold-500/30">
+                        <span className="text-gold-600 font-bold tracking-[0.2em] uppercase text-xs mb-4 block">Hakkımızda</span>
+                        <h2 className="text-4xl md:text-5xl font-serif text-charcoal-900 mb-8 leading-tight">Elazığ'da Kalitenin ve<br/>Zarafetin Adresi</h2>
+                        <p className="text-stone-600 text-lg leading-relaxed mb-8 font-light">
+                            2007 yılında başladığımız bu yolculukta, İzzetpaşa Mahallesi'ndeki mağazamızda müşterilerimize en kaliteli perde ve tekstil ürünlerini sunuyoruz. Her pencere, bizim için yeni bir tuvaldir.
+                        </p>
+                        <ul className="space-y-6 mb-12">
+                            <li className="flex items-center gap-4 text-charcoal-800">
+                                <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-gold-600"><ShieldCheck size={20} /></div>
+                                <span className="font-medium tracking-wide">1. Sınıf Kalite Malzeme Garantisi</span>
+                            </li>
+                            <li className="flex items-center gap-4 text-charcoal-800">
+                                <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-gold-600"><Ruler size={20} /></div>
+                                <span className="font-medium tracking-wide">Uzman Ekiple Ücretsiz Keşif & Ölçü</span>
+                            </li>
+                            <li className="flex items-center gap-4 text-charcoal-800">
+                                <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-gold-600"><Star size={20} /></div>
+                                <span className="font-medium tracking-wide">15 Yıllık Tecrübe ve Müşteri Memnuniyeti</span>
+                            </li>
+                        </ul>
+                        <Link href="/hakkimizda" className="text-gold-600 font-bold uppercase tracking-widest text-sm hover:text-charcoal-900 transition-colors inline-flex items-center group">
+                            Hikayemizi Okuyun <ArrowRight size={18} className="ml-3 group-hover:translate-x-2 transition-transform" />
+                        </Link>
+                    </div>
+                </div>
+            </section>
+        </main>
+    );
 }

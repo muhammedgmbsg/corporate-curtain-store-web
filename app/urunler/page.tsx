@@ -1,27 +1,34 @@
 import Navbar from '@/components/Navbar';
-import { databases, databaseId, collectionId, Query } from '@/lib/appwrite';
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
+import { databases, databaseId, collectionId, Query } from '@/lib/appwrite';
+import { ArrowRight } from 'lucide-react';
 
-// BU SATIRI EKLEMEN YETERLİ (Önbelleği kapatır, veriyi taze çeker)
 export const revalidate = 0;
 
-async function getProducts() {
+interface Product {
+    id: string;
+    title: string;
+    category: string;
+    images: string[];
+}
+
+async function getProducts(): Promise<Product[]> {
     try {
         const response = await databases.listDocuments(
             databaseId,
             collectionId,
             [Query.orderDesc('$createdAt')]
         );
+        
         return response.documents.map(doc => ({
             id: doc.$id,
             title: doc.title,
-            description: doc.description,
             category: doc.category,
             images: doc.images || []
         }));
     } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Veri çekme hatası:", error);
         return [];
     }
 }
@@ -30,53 +37,45 @@ export default async function UrunlerPage() {
     const products = await getProducts();
 
     return (
-        <main className="min-h-screen bg-gray-50 font-sans">
+        <main className="min-h-screen bg-stone-50 font-sans">
             <Navbar />
-
-            <div className="bg-white border-b border-gray-200 py-16 text-center">
-                <h1 className="text-4xl font-extrabold text-slate-900 mb-3">Koleksiyonumuz</h1>
-                <p className="text-gray-500 text-lg max-w-2xl mx-auto">Yaşam alanlarınız için özenle tasarlanmış, her tarza uygun perde modelleri.</p>
+            
+            {/* Header Alanı */}
+            <div className="bg-charcoal-900 text-white pt-40 pb-20 px-6 text-center">
+                <span className="text-gold-500 text-xs font-bold uppercase tracking-[0.3em] mb-4 block">Erol Perde</span>
+                <h1 className="text-4xl md:text-6xl font-serif mb-6">Koleksiyonumuz</h1>
+                <div className="w-16 h-[1px] bg-gold-500 mx-auto"></div>
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 py-16">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {products.map((product) => (
-                        <div key={product.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 group flex flex-col h-full">
-                            <div className="relative h-72 w-full bg-gray-100 overflow-hidden">
-                                <Image
-                                    src={product.images && product.images[0] ? product.images[0] : '/placeholder.png'}
-                                    alt={product.title}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition duration-700"
-                                />
-                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-slate-800 uppercase tracking-wide shadow-sm">
-                                    {product.category}
+            <div className="max-w-7xl mx-auto px-6 py-24">
+                {products.length === 0 ? (
+                    <div className="text-center py-20">
+                        <p className="text-stone-500 text-lg font-light">Henüz koleksiyonumuza ürün eklenmemiş.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+                        {products.map((product) => (
+                            <Link href={`/urunler/${product.id}`} key={product.id} className="group cursor-pointer">
+                                <div className="relative aspect-[3/4] bg-stone-100 overflow-hidden mb-6">
+                                    <Image 
+                                        src={product.images && product.images[0] ? product.images[0] : '/placeholder.png'} 
+                                        alt={product.title} 
+                                        fill
+                                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                                    />
+                                    {/* Hover Overlay */}
+                                    <div className="absolute inset-0 bg-charcoal-900/0 group-hover:bg-charcoal-900/30 transition-colors duration-500 flex items-center justify-center">
+                                        <div className="translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 text-white font-medium uppercase tracking-widest text-sm">
+                                            İncele <ArrowRight size={16} />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="p-6 flex flex-col flex-1">
-                                <h2 className="text-lg font-bold text-slate-800 mb-2 line-clamp-1 group-hover:text-blue-600 transition">{product.title}</h2>
-                                <p className="text-gray-500 text-sm line-clamp-2 mb-6 flex-1 leading-relaxed">
-                                    {product.description}
-                                </p>
-
-                                <div className="pt-4 border-t border-gray-100 mt-auto">
-                                    <Link
-                                        href={`/urunler/${product.id}`}
-                                        className="block w-full text-center text-sm font-semibold text-white bg-slate-900 px-4 py-3 rounded-xl hover:bg-blue-600 transition"
-                                    >
-                                        Detaylı İncele
-                                    </Link>
+                                <div className="text-center">
+                                    <span className="text-gold-600 text-xs font-bold uppercase tracking-widest block mb-2">{product.category}</span>
+                                    <h3 className="text-2xl font-serif text-charcoal-900 group-hover:text-gold-600 transition-colors">{product.title}</h3>
                                 </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {products.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-3xl">📭</div>
-                        <h3 className="text-xl font-medium text-gray-600">Henüz ürün bulunmuyor</h3>
+                            </Link>
+                        ))}
                     </div>
                 )}
             </div>

@@ -1,140 +1,128 @@
-"use client";
-// BU SATIRI EKLE (Next.js 15 Client Component'lerde bazen gerekmez ama garanti olsun)
-export const dynamic = "force-dynamic";
-
-import { useState, useEffect, use } from 'react';
 import { databases, databaseId, collectionId } from '@/lib/appwrite';
 import Navbar from '@/components/Navbar';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, ChevronLeft, ChevronRight, Phone, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { notFound } from 'next/navigation';
 
-interface Product {
-    id: string;
-    title: string;
-    description: string;
-    category: string;
-    images: string[];
+export const revalidate = 0;
+
+async function getProduct(id: string) {
+    try {
+        const response = await databases.getDocument(
+            databaseId,
+            collectionId,
+            id
+        );
+        return {
+            id: response.$id,
+            title: response.title,
+            description: response.description,
+            category: response.category,
+            images: response.images || []
+        };
+    } catch (error) {
+        console.error("Ürün çekme hatası:", error);
+        return null;
+    }
 }
 
-export default function UrunDetayPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
+export default async function ProductDetailPage({ params }: { params: { id: string } }) {
+    const product = await getProduct(params.id);
 
-    const [product, setProduct] = useState<Product | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
-
-    useEffect(() => {
-        async function fetchProduct() {
-            try {
-                const doc = await databases.getDocument(databaseId, collectionId, id);
-                setProduct({
-                    id: doc.$id,
-                    title: doc.title,
-                    description: doc.description,
-                    category: doc.category,
-                    images: doc.images || []
-                });
-            } catch (error) {
-                console.error("Error fetching product:", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchProduct();
-    }, [id]);
-
-    if (loading) return <div className="min-h-screen flex items-center justify-center text-slate-500">Yükleniyor...</div>;
-    if (!product) return <div className="text-center py-20 text-red-500">Ürün bulunamadı.</div>;
-
-    const images = product.images || [];
-    const mainImage = images.length > 0 ? images[activeImageIndex] : null;
+    if (!product) {
+        notFound();
+    }
 
     return (
-        <main className="min-h-screen bg-white font-sans">
+        <main className="min-h-screen bg-stone-50 font-sans">
             <Navbar />
+            
+            {/* Minimal Header Space for glassy navbar */}
+            <div className="pt-32 pb-12 px-6">
+                <div className="max-w-7xl mx-auto flex items-center text-sm font-medium text-stone-400 uppercase tracking-widest">
+                    <Link href="/urunler" className="hover:text-gold-600 transition-colors">Koleksiyon</Link>
+                    <ChevronRight size={14} className="mx-2" />
+                    <span className="text-charcoal-900">{product.title}</span>
+                </div>
+            </div>
 
-            <div className="max-w-7xl mx-auto px-6 py-10">
-                <Link href="/urunler" className="inline-flex items-center text-gray-500 hover:text-slate-900 mb-8 transition font-medium text-sm">
-                    <ArrowLeft size={18} className="mr-2" /> Tüm Ürünlere Dön
-                </Link>
-
-                <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-
-                    {/* --- SOL: GALERİ --- */}
+            <div className="max-w-7xl mx-auto px-6 pb-32">
+                <div className="grid md:grid-cols-2 gap-16 lg:gap-24 items-start">
+                    
+                    {/* Sol: Resim Galerisi */}
                     <div className="space-y-6">
-                        <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden bg-gray-100 shadow-sm border border-gray-100 group">
-                            {mainImage ? (
-                                <Image
-                                    src={mainImage}
-                                    alt={product.title}
-                                    fill
-                                    className="object-cover transition duration-500"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-400">Resim Yok</div>
-                            )}
-
-                            {images.length > 1 && (
-                                <>
-                                    <button
-                                        onClick={() => setActiveImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 p-3 rounded-full hover:bg-white text-slate-800 shadow-lg transition opacity-0 group-hover:opacity-100"
-                                    >
-                                        <ChevronLeft size={24} />
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 p-3 rounded-full hover:bg-white text-slate-800 shadow-lg transition opacity-0 group-hover:opacity-100"
-                                    >
-                                        <ChevronRight size={24} />
-                                    </button>
-                                </>
-                            )}
+                        <div className="relative aspect-[4/5] bg-stone-100 overflow-hidden shadow-xl">
+                            <Image
+                                src={product.images && product.images[0] ? product.images[0] : '/placeholder.png'}
+                                alt={product.title}
+                                fill
+                                className="object-cover"
+                                priority
+                            />
                         </div>
-
-                        {images.length > 1 && (
-                            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                                {images.map((img, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => setActiveImageIndex(idx)}
-                                        className={`relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all
-                                    ${activeImageIndex === idx ? 'border-blue-600 ring-2 ring-blue-100 opacity-100 scale-105' : 'border-transparent opacity-70 hover:opacity-100'}`}
-                                    >
-                                        <Image src={img} alt={`thumb-${idx}`} fill className="object-cover" />
-                                    </button>
+                        
+                        {/* Eğer birden fazla resim varsa alt galeride göster */}
+                        {product.images && product.images.length > 1 && (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                {product.images.slice(1).map((img: string, index: number) => (
+                                    <div key={index} className="relative aspect-square bg-stone-100 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity">
+                                        <Image
+                                            src={img}
+                                            alt={`${product.title} - Görsel ${index + 2}`}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         )}
                     </div>
 
-                    {/* --- SAĞ: BİLGİLER --- */}
-                    <div className="flex flex-col py-4">
-                        <div className="mb-6">
-                            <span className="text-blue-600 font-bold text-sm tracking-wider uppercase mb-2 block">{product.category}</span>
-                            <h1 className="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">{product.title}</h1>
-                            <p className="text-gray-600 text-lg leading-relaxed mb-8 border-l-4 border-gray-200 pl-4">
-                                {product.description}
-                            </p>
+                    {/* Sağ: Ürün Detayları */}
+                    <div className="sticky top-40 pt-8 md:pt-0">
+                        <span className="text-gold-600 font-bold uppercase tracking-[0.2em] text-sm block mb-4">
+                            {product.category}
+                        </span>
+                        
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-charcoal-900 mb-8 leading-tight">
+                            {product.title}
+                        </h1>
+                        
+                        <div className="h-[1px] w-full bg-stone-200 mb-8"></div>
+                        
+                        <div className="prose prose-stone max-w-none text-stone-600 font-light leading-relaxed mb-12">
+                            {product.description ? (
+                                <p className="text-lg whitespace-pre-wrap">{product.description}</p>
+                            ) : (
+                                <p className="italic text-stone-400">Bu ürün için henüz bir açıklama girilmemiş.</p>
+                            )}
                         </div>
-
-                        <div className="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
-                            <div className="flex items-center gap-3 mb-2 text-slate-700 font-medium">
-                                <ShieldCheck className="text-emerald-500" size={20} /> Kalite Garantisi
-                            </div>
-                            <p className="text-sm text-gray-500">Tüm ürünlerimiz 1. sınıf kumaştan üretilip, kalite kontrol testlerinden geçmiştir.</p>
-                        </div>
-
-                        <div className="mt-auto pt-8 border-t border-gray-100">
-                            <Link
+                        
+                        <div className="space-y-6">
+                            <Link 
                                 href="/iletisim"
-                                className="w-full bg-slate-900 text-white px-8 py-5 rounded-xl font-bold hover:bg-blue-600 transition shadow-xl shadow-slate-200 flex items-center justify-center gap-3 text-lg"
+                                className="block w-full bg-charcoal-900 text-white text-center py-5 uppercase tracking-widest text-sm font-bold hover:bg-gold-600 transition-colors"
                             >
-                                <Phone size={24} /> Fiyat ve Sipariş İçin Arayın
+                                Bilgi ve Teklif Alın
+                            </Link>
+                            <Link 
+                                href="/urunler"
+                                className="flex items-center justify-center gap-2 w-full border border-stone-300 text-charcoal-900 text-center py-5 uppercase tracking-widest text-sm font-bold hover:bg-stone-100 transition-colors"
+                            >
+                                <ArrowLeft size={16} /> Koleksiyona Dön
                             </Link>
                         </div>
+                        
+                        {/* Zarif Teslimat / Bilgi Notu */}
+                        <div className="mt-12 bg-white p-6 border border-stone-100 shadow-sm">
+                            <h4 className="font-serif text-charcoal-900 text-lg mb-2">Mimari Dokunuş</h4>
+                            <p className="text-stone-500 font-light text-sm leading-relaxed">
+                                Tüm ürünlerimiz mekanınıza özel olarak projelendirilip, Elazığ içi ücretsiz keşif ve montaj hizmetiyle sunulmaktadır.
+                            </p>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </main>
