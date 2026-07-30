@@ -3,14 +3,14 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, use } from 'react';
-import { supabase } from '@/lib/supabase';
+import { databases, databaseId, collectionId } from '@/lib/appwrite';
 import Navbar from '@/components/Navbar';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ChevronLeft, ChevronRight, Phone, ShieldCheck } from 'lucide-react';
 
 interface Product {
-    id: number;
+    id: string;
     title: string;
     description: string;
     category: string;
@@ -26,9 +26,20 @@ export default function UrunDetayPage({ params }: { params: Promise<{ id: string
 
     useEffect(() => {
         async function fetchProduct() {
-            const { data, error } = await supabase.from('products').select('*').eq('id', id).single();
-            if (!error && data) setProduct(data);
-            setLoading(false);
+            try {
+                const doc = await databases.getDocument(databaseId, collectionId, id);
+                setProduct({
+                    id: doc.$id,
+                    title: doc.title,
+                    description: doc.description,
+                    category: doc.category,
+                    images: doc.images || []
+                });
+            } catch (error) {
+                console.error("Error fetching product:", error);
+            } finally {
+                setLoading(false);
+            }
         }
         fetchProduct();
     }, [id]);

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { account, databases, storage, databaseId, collectionId, bucketId, ID, Query } from "@/lib/appwrite";
 import { Trash2, Upload, Loader2, Plus, LogOut, Edit2, X, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 interface Product {
-    id: number;
+    id: string;
     title: string;
     description: string;
     category: string;
@@ -29,7 +29,7 @@ export default function AdminPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
-    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editingId, setEditingId] = useState<string | null>(null);
     const router = useRouter();
 
     const [formData, setFormData] = useState({
@@ -45,18 +45,29 @@ export default function AdminPage() {
     }, []);
 
     async function checkUserAndFetch() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
+        try {
+            await account.get();
+            fetchProducts();
+        } catch (error) {
             router.push("/login");
-            return;
         }
-        fetchProducts();
     }
 
     async function fetchProducts() {
-        const { data, error } = await supabase.from("products").select("*").order("created_at", { ascending: false });
-        if (!error) setProducts(data || []);
-        setLoading(false);
+        try {
+            const response = await databases.listDocuments(databaseId, collectionId, [Query.orderDesc('$createdAt')]);
+            setProducts(response.documents.map(doc => ({
+                id: doc.$id,
+                title: doc.title,
+                description: doc.description,
+                category: doc.category,
+                images: doc.images || []
+            })));
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     function handleEdit(product: Product) {
@@ -87,12 +98,9 @@ export default function AdminPage() {
             let uploadedUrls: string[] = [...existingImages];
             if (imageFiles.length > 0) {
                 for (const file of imageFiles) {
-                    const fileExt = file.name.split(".").pop();
-                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-                    const { error: uploadError } = await supabase.storage.from("product-images").upload(fileName, file);
-                    if (uploadError) throw uploadError;
-                    const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(fileName);
-                    uploadedUrls.push(publicUrl);
+                    const uploadedFile = await storage.createFile(bucketId, ID.unique(), file);
+                    const fileUrl = storage.getFileView(bucketId, uploadedFile.$id).toString();
+                    uploadedUrls.push(fileUrl);
                 }
             }
 
@@ -104,9 +112,9 @@ export default function AdminPage() {
             };
 
             if (editingId) {
-                await supabase.from("products").update(productData).eq("id", editingId);
+                await databases.updateDocument(databaseId, collectionId, editingId, productData);
             } else {
-                await supabase.from("products").insert([productData]);
+                await databases.createDocument(databaseId, collectionId, ID.unique(), productData);
             }
             alert(editingId ? "Güncellendi!" : "Eklendi!");
             resetForm();
@@ -119,15 +127,24 @@ export default function AdminPage() {
         }
     }
 
-    async function handleDelete(id: number) {
+    async function handleDelete(id: string) {
         if (!confirm("Silmek istediğine emin misin?")) return;
-        await supabase.from("products").delete().eq("id", id);
-        setProducts(products.filter(p => p.id !== id));
-        if (editingId === id) resetForm();
+        try {
+            await databases.deleteDocument(databaseId, collectionId, id);
+            setProducts(products.filter(p => p.id !== id));
+            if (editingId === id) resetForm();
+        } catch (error) {
+            console.error(error);
+            alert("Silinemedi!");
+        }
     }
 
     async function handleLogout() {
-        await supabase.auth.signOut();
+        try {
+            await account.deleteSession("current");
+        } catch (e) {
+            console.error(e);
+        }
         router.push("/login");
     }
 

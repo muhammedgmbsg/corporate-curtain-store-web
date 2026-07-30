@@ -1,5 +1,5 @@
 import Navbar from '@/components/Navbar';
-import { supabase } from '@/lib/supabase';
+import { databases, databaseId, collectionId, Query } from '@/lib/appwrite';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -7,8 +7,23 @@ import Link from 'next/link';
 export const revalidate = 0;
 
 async function getProducts() {
-    const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-    return data || [];
+    try {
+        const response = await databases.listDocuments(
+            databaseId,
+            collectionId,
+            [Query.orderDesc('$createdAt')]
+        );
+        return response.documents.map(doc => ({
+            id: doc.$id,
+            title: doc.title,
+            description: doc.description,
+            category: doc.category,
+            images: doc.images || []
+        }));
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        return [];
+    }
 }
 
 export default async function UrunlerPage() {

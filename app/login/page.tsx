@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { account } from '@/lib/appwrite';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -14,17 +14,13 @@ export default function LoginPage() {
         e.preventDefault();
         setLoading(true);
 
-        const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-
-        if (error) {
+        try {
+            await account.createEmailPasswordSession(email, password);
+            router.push('/admin');
+        } catch (error) {
+            console.error("Login failed:", error);
             alert('Giriş başarısız! Bilgileri kontrol et.');
             setLoading(false);
-        } else {
-            // Başarılıysa admin paneline yönlendir
-            router.push('/admin');
         }
     };
 
