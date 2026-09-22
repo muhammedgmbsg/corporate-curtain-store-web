@@ -9,7 +9,7 @@ export default function HakkimizdaPage() {
 
             {/* Hero */}
             <div className="relative bg-charcoal-900 text-white pt-40 pb-28 overflow-hidden">
-                <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069&auto=format&fit=crop')] bg-cover bg-center mix-blend-multiply"></div>
+                <div className="absolute inset-0 opacity-20 bg-[url('/site/hero-1.jpg')] bg-cover bg-center mix-blend-multiply"></div>
                 <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
                     <span className="text-gold-500 font-bold tracking-[0.3em] uppercase text-xs mb-6 block">Hakkımızda</span>
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif mb-6 leading-tight">
@@ -49,7 +49,7 @@ export default function HakkimizdaPage() {
 
                     <div className="relative h-[500px] w-full bg-stone-100 shadow-2xl overflow-hidden group">
                         <Image
-                            src="https://images.unsplash.com/photo-1615873968403-89e068629265?q=80&w=2000"
+                            src="/products/fon-kumas-1.jpg"
                             alt="Perde Detay"
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-1000"

@@ -2,31 +2,10 @@ import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Star, ShieldCheck, Ruler, Layers, Blinds, Home as HomeIcon } from 'lucide-react';
-import { databases, databaseId, collectionId, Query } from '@/lib/appwrite';
+import { products } from '@/lib/products';
 
-export const revalidate = 0;
-
-async function getLatestProducts() {
-    try {
-        const response = await databases.listDocuments(
-            databaseId,
-            collectionId,
-            [Query.orderDesc('$createdAt'), Query.limit(3)]
-        );
-        return response.documents.map(doc => ({
-            id: doc.$id,
-            title: doc.title,
-            category: doc.category,
-            images: doc.images || []
-        }));
-    } catch (error) {
-        console.error("Error fetching latest products:", error);
-        return [];
-    }
-}
-
-export default async function Home() {
-    const latestProducts = await getLatestProducts();
+export default function Home() {
+    const latestProducts = products.slice(0, 3);
 
     return (
         <main className="min-h-screen bg-stone-50 font-sans">
@@ -37,7 +16,7 @@ export default async function Home() {
                 <div className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-charcoal-900/60 z-10" />
                     <div
-                        className="w-full h-full bg-[url('https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=2069&auto=format&fit=crop')] 
+                        className="w-full h-full bg-[url('/site/hero-1.jpg')]
              bg-cover bg-center scale-105 animate-fade-in"
                         style={{ animationDuration: '3s' }}
                     />
@@ -147,7 +126,7 @@ export default async function Home() {
             <section className="py-32 bg-white">
                 <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center">
                     <div className="relative h-[600px] overflow-hidden group">
-                        <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=2000')] bg-cover bg-center group-hover:scale-105 transition-transform duration-1000"></div>
+                        <div className="w-full h-full bg-[url('/site/about-teaser.jpg')] bg-cover bg-center group-hover:scale-105 transition-transform duration-1000"></div>
                         <div className="absolute inset-0 bg-charcoal-900/10 mix-blend-multiply"></div>
                         <div className="absolute -bottom-6 -right-6 w-48 h-48 bg-stone-100 -z-10"></div>
                     </div>

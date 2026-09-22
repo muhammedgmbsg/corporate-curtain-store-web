@@ -1,40 +1,10 @@
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import Image from 'next/image';
-import { databases, databaseId, collectionId, Query } from '@/lib/appwrite';
+import { products } from '@/lib/products';
 import { ArrowRight } from 'lucide-react';
 
-export const revalidate = 0;
-
-interface Product {
-    id: string;
-    title: string;
-    category: string;
-    images: string[];
-}
-
-async function getProducts(): Promise<Product[]> {
-    try {
-        const response = await databases.listDocuments(
-            databaseId,
-            collectionId,
-            [Query.orderDesc('$createdAt')]
-        );
-        
-        return response.documents.map(doc => ({
-            id: doc.$id,
-            title: doc.title,
-            category: doc.category,
-            images: doc.images || []
-        }));
-    } catch (error) {
-        console.error("Veri çekme hatası:", error);
-        return [];
-    }
-}
-
-export default async function UrunlerPage() {
-    const products = await getProducts();
+export default function UrunlerPage() {
 
     return (
         <main className="min-h-screen bg-stone-50 font-sans">

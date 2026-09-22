@@ -1,34 +1,17 @@
-import { databases, databaseId, collectionId } from '@/lib/appwrite';
+import { products, getProductById } from '@/lib/products';
 import Navbar from '@/components/Navbar';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
-export const revalidate = 0;
-
-async function getProduct(id: string) {
-    try {
-        const response = await databases.getDocument(
-            databaseId,
-            collectionId,
-            id
-        );
-        return {
-            id: response.$id,
-            title: response.title,
-            description: response.description,
-            category: response.category,
-            images: response.images || []
-        };
-    } catch (error) {
-        console.error("Ürün çekme hatası:", error);
-        return null;
-    }
+export function generateStaticParams() {
+    return products.map((product) => ({ id: product.id }));
 }
 
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
-    const product = await getProduct(params.id);
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const product = getProductById(id);
 
     if (!product) {
         notFound();
